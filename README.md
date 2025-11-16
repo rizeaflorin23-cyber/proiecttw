@@ -1,3 +1,5 @@
+Autori : Rizea Florin-Mario, Robu Mihai, Roșioru Mihai-Bogdan
+Grupa : 1094
 Dealership Auto Web App
 
 Descriere :
@@ -33,11 +35,3 @@ Tabel: Cars
   imageUrl      VARCHAR   poză
   createdAt     DATE      generat automat
   updatedAt     DATE      generat automat
-
-Autori
-Rizea Florin-Mario
-Robu Mihai
-Roșioru Mihai-Bogdan
-
--   Nume student
--   Grupa
