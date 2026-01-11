@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = 'cheie_secreta_super_sigura_123'; // Aceeași cheie ca la login!
+//Pastrăm aceeași cheie
+const JWT_SECRET = 'cheie_secreta_super_sigura_123'; 
 
 module.exports = (req, res, next) => {
     // 1. Căutăm token-ul în header-ul cererii
@@ -13,8 +14,6 @@ module.exports = (req, res, next) => {
 
     try {
         // 3. Verificăm dacă token-ul e valid
-        // De obicei token-ul vine ca "Bearer eyJhb...", așa că uneori trebuie curățat,
-        // dar pentru simplitate acum presupunem că trimitem doar token-ul.
         const decoded = jwt.verify(token, JWT_SECRET);
 
         // 4. Atașăm datele utilizatorului de cerere (req.user)

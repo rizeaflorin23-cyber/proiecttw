@@ -1,7 +1,7 @@
 const { Activity } = require('../models');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = 'cheie_secreta_super_sigura_123'; // Aceeași cheie
+const JWT_SECRET = 'cheie_secreta_super_sigura_123'; 
 
 exports.joinActivity = async (req, res) => {
     try {
@@ -12,7 +12,7 @@ exports.joinActivity = async (req, res) => {
             where: { access_code: access_code } 
         });
 
-        // 2. Verificări: Există? E activă?
+        // 2. Verificări: Există?, E activă?
         if (!activity) {
             return res.status(404).json({ message: "Cod invalid." });
         }

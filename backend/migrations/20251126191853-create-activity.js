@@ -31,7 +31,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users', // Numele tabelului (plural) la care ne referim
+          model: 'Users', 
           key: 'id'
         },
         onDelete: 'CASCADE' // Daca stergem profesorul, se sterg si activitatile lui

@@ -16,7 +16,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Activities', // Tabelul Activities
+          model: 'Activities', 
           key: 'id'
         },
         onDelete: 'CASCADE' // Dacă se sterge activitatea, dispar si feedback-urile

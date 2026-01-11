@@ -11,9 +11,6 @@ exports.createActivity = async (req, res) => {
         
         // Generăm un cod unic
         let access_code = generateCode();
-        
-        // (Opțional) Aici am putea verifica în buclă dacă codul există deja în DB,
-        // dar șansele de coliziune sunt mici pentru un demo.
 
         // Creăm activitatea legată de profesorul curent (req.user.id vine din middleware)
         const newActivity = await Activity.create({
@@ -46,12 +43,12 @@ exports.getStats = async (req, res) => {
             return res.status(404).json({ message: "Activitate negăsită" });
         }
 
-        // 2. Numărăm toate feedback-urile pentru această activitate
+        // 2. Numărăm toate feedback-urile pentru activitate
         const feedbacks = await Feedback.findAll({
             where: { activityId: activity.id }
         });
 
-        // 3. Calculăm totalurile (Manual, e mai simplu de înțeles)
+        // 3. Calculăm totalurile 
         let stats = {
             smiley: 0,
             surprised: 0,

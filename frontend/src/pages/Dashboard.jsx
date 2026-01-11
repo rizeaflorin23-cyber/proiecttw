@@ -1,19 +1,14 @@
+// frontend/src/pages/Dashboard.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [activityCode, setActivityCode] = useState(null);
   const [loading, setLoading] = useState(false);
-  
-  // Aici ținem minte voturile
-  const [stats, setStats] = useState({
-    smiley: 0,
-    surprised: 0,
-    confused: 0,
-    frowny: 0
-  });
+  const [stats, setStats] = useState({ smiley: 0, surprised: 0, confused: 0, frowny: 0 });
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -30,76 +25,122 @@ const Dashboard = () => {
       );
       setActivityCode(response.data.activity.access_code);
     } catch (error) {
-      alert("Eroare la creare!");
+      alert("Eroare la creare! Verifică serverul backend.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Această funcție cere statisticile de la server
   const fetchStats = async () => {
     if (!activityCode) return;
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `http://localhost:3001/api/activities/${activityCode}/stats`,
+      const response = await axios.get(`http://localhost:3001/api/activities/${activityCode}/stats`,
         { headers: { Authorization: token } }
       );
       setStats(response.data.stats);
     } catch (error) {
-      console.error("Eroare la citirea statisticilor", error);
+      console.error("Eroare stats", error);
     }
   };
 
-  // Efect: Cât timp avem o activitate activă, cerem datele la fiecare 2 secunde
   useEffect(() => {
     let interval = null;
     if (activityCode) {
-      // 1. Cerem datele imediat
       fetchStats();
-      // 2. Setăm un cronometru să ceară datele periodic
       interval = setInterval(fetchStats, 2000);
     }
-    // Când închidem activitatea, oprim cronometrul
-    return () => {
-      if (interval) clearInterval(interval);
-    };
+    return () => { if (interval) clearInterval(interval); };
   }, [activityCode]);
 
+  const COLORS = ['#4CAF50', '#2196F3', '#FF9800', '#F44336'];
+  const chartData = [
+    { name: 'Clar (😀)', value: stats.smiley },
+    { name: 'Interesant (😮)', value: stats.surprised },
+    { name: 'Confuz (😕)', value: stats.confused },
+    { name: 'Greu (☹️)', value: stats.frowny },
+  ];
+
+  const totalVotes = stats.smiley + stats.surprised + stats.confused + stats.frowny;
+
   return (
-    <div className="container">
-      <div className="card" style={{ maxWidth: '600px', margin: '30px auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h1>Panou Profesor 👨‍🏫</h1>
-            <button onClick={handleLogout} style={{ width: 'auto', backgroundColor: '#dc3545', padding: '5px 10px', fontSize: '0.8rem' }}>Ieșire</button>
+    <div className="dashboard-container">
+      <div className="card main-card">
+        <div className="header-bar">
+            {/* Panoul*/}
+            <h1>Panou Profesor</h1>
+            <button onClick={handleLogout} className="btn btn-danger btn-sm">Ieșire</button>
         </div>
         
         {!activityCode ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>
-            <p>Ești gata să începi cursul?</p>
-            <button onClick={createActivity} disabled={loading} style={{ fontSize: '1.2rem' }}>
-              {loading ? '...' : '🚀 Start Activitate'}
+          <div className="start-section">
+            <p className="lead">Ești gata să începi cursul?</p>
+            <button onClick={createActivity} disabled={loading} className="btn btn-primary btn-lg">
+              {loading ? <span className="spinner"></span> : '🚀 Start Activitate'}
             </button>
           </div>
         ) : (
           <div>
-            {/* Header cu Codul */}
-            <div style={{ textAlign: 'center', background: '#e3f2fd', padding: '10px', borderRadius: '8px' }}>
-                <p style={{ margin: 0 }}>Cod de acces pentru studenți:</p>
-                <h2 style={{ fontSize: '3rem', margin: '5px 0', color: '#0d47a1' }}>{activityCode}</h2>
+            <div className="code-display">
+                <p>Cod de acces pentru studenți:</p>
+                <h2 className="code-number">{activityCode}</h2>
             </div>
 
-            {/* Zona de Statistici */}
-            <h3 style={{ marginTop: '20px', textAlign: 'center' }}>Rezultate Live:</h3>
+            <h3 className="section-title">Rezultate Live:</h3>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
-                <StatCard emoji="😀" label="Clar" count={stats.smiley} color="#4CAF50" />
-                <StatCard emoji="😮" label="Interesant" count={stats.surprised} color="#2196F3" />
-                <StatCard emoji="😕" label="Confuz" count={stats.confused} color="#FF9800" />
-                <StatCard emoji="☹️" label="Greu" count={stats.frowny} color="#F44336" />
+            <div style={{ width: '100%', height: 300, position: 'relative' }}>
+              {totalVotes === 0 ? (
+                <div style={{ 
+                    height: '100%', display: 'flex', flexDirection: 'column',
+                    justifyContent: 'center', alignItems: 'center', color: '#666',
+                    border: '2px dashed #ccc', borderRadius: '12px', background: 'rgba(255,255,255,0.4)'
+                }}>
+                    <div style={{ fontSize: '3rem', marginBottom: '10px' }}>⏳</div>
+                    <p>Așteptăm primul vot...</p>
+                </div>
+              ) : (
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={chartData}
+                      cx="50%" cy="50%"
+                      labelLine={false}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                      isAnimationActive={false} 
+                      label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                        if (percent === 0) return null;
+                        const RADIAN = Math.PI / 180;
+                        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                        return (
+                          <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+                            {`${(percent * 100).toFixed(0)}%`}
+                          </text>
+                        );
+                      }}
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" height={36}/>
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
             </div>
 
-            <button onClick={() => setActivityCode(null)} style={{ marginTop: '30px', backgroundColor: '#6c757d' }}>
+            <div className="stats-grid">
+                <StatCard emoji="😀" label="Clar" count={stats.smiley} color={COLORS[0]} />
+                <StatCard emoji="😮" label="Interesant" count={stats.surprised} color={COLORS[1]} />
+                <StatCard emoji="😕" label="Confuz" count={stats.confused} color={COLORS[2]} />
+                <StatCard emoji="☹️" label="Greu" count={stats.frowny} color={COLORS[3]} />
+            </div>
+
+            <button onClick={() => setActivityCode(null)} className="btn btn-secondary stop-btn">
               Oprește Activitatea
             </button>
           </div>
@@ -109,18 +150,11 @@ const Dashboard = () => {
   );
 };
 
-// O componentă mică pentru a afișa frumos fiecare cartonaș
 const StatCard = ({ emoji, label, count, color }) => (
-    <div style={{ 
-        border: `2px solid ${color}`, 
-        borderRadius: '8px', 
-        padding: '10px', 
-        textAlign: 'center',
-        backgroundColor: '#fff' 
-    }}>
-        <div style={{ fontSize: '2rem' }}>{emoji}</div>
-        <div style={{ fontWeight: 'bold', color: color }}>{label}</div>
-        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginTop: '5px' }}>{count}</div>
+    <div className="stat-card" style={{ borderTop: `4px solid ${color}` }}>
+        <div className="stat-emoji">{emoji}</div>
+        <div className="stat-label" style={{ color: color }}>{label}</div>
+        <div className="stat-count">{count}</div>
     </div>
 );
 

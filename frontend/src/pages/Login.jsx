@@ -7,62 +7,74 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Previne reîncărcarea paginii
+    e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
-      // Facem cererea către Backend
       const response = await axios.post('http://localhost:3001/api/auth/login', {
         email,
         password
       });
-
-      // Dacă e succes:
-      // 1. Salvăm token-ul în browser (LocalStorage)
       localStorage.setItem('token', response.data.token);
-      
-      // 2. Redirecționăm profesorul către Dashboard (pagina principală)
-      // (Vom crea această pagină pasul următor)
       navigate('/dashboard'); 
-
     } catch (err) {
-      // Dacă backend-ul dă eroare (ex: parola greșită)
       setError('Email sau parolă incorectă!');
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <div className="card">
-        <h2>Autentificare Profesor</h2>
-        {error && <p className="error">{error}</p>}
-        
-        <form onSubmit={handleLogin}>
-          <div className="form-group">
-            <label>Email:</label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-            />
-          </div>
-          
-          <div className="form-group">
-            <label>Parolă:</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-            />
-          </div>
+    <div className="card login-card">
+      <div className="login-header">
+        <div className="login-icon">🎓</div>
+        <h1>Autentificare</h1>
+        <p className="lead" style={{ fontSize: '1rem', marginBottom: '20px' }}>
+          Platforma de Feedback în Timp Real
+        </p>
+      </div>
 
-          <button type="submit">Intră în cont</button>
-        </form>
+      {error && <div className="error">{error}</div>}
+      
+      <form onSubmit={handleLogin}>
+        <div className="form-group">
+          <label>Email</label>
+          <input 
+            type="email" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="profesor@test.com"
+            required 
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Parolă</label>
+          <input 
+            type="password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required 
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          className="btn btn-primary btn-lg" 
+          style={{ marginTop: '20px' }}
+          disabled={loading}
+        >
+          {loading ? <span className="spinner"></span> : 'Intră în cont'}
+        </button>
+      </form>
+      
+      <div style={{ marginTop: '20px', fontSize: '0.9rem', color: '#6c757d' }}>
+          Nu ai cont? Contactează administratorul.
       </div>
     </div>
   );

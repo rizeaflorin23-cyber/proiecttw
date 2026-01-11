@@ -11,8 +11,8 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: false, // Nu permitem email gol
-        unique: true      // Email-ul trebuie sa fie unic
+        allowNull: false, 
+        unique: true      
       },
       password: {
         type: Sequelize.STRING
