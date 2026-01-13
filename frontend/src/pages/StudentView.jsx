@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import { useState } from 'react';
 import axios from 'axios';
 // 1. Importare librăria de artificii
@@ -13,7 +14,7 @@ const StudentView = () => {
 
       const token = localStorage.getItem('token');
       
-      await axios.post('http://localhost:3001/api/feedback', 
+      await axios.post(`${API_URL}/api/feedback`, 
         { reaction: reactionType },
         { headers: { Authorization: token } }
       );

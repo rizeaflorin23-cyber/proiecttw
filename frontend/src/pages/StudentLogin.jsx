@@ -1,4 +1,5 @@
 // frontend/src/pages/StudentLogin.jsx
+import { API_URL } from '../config';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -11,7 +12,7 @@ const StudentLogin = () => {
     e.preventDefault();
     try {
       // 1. Trimitem codul la backend
-      const response = await axios.post('http://localhost:3001/api/join', {
+      const response = await axios.post(`${API_URL}/api/join`, {
         access_code: code
       });
 

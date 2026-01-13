@@ -1,4 +1,5 @@
 // frontend/src/pages/Dashboard.jsx
+import { API_URL } from '../config';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -19,7 +20,7 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:3001/api/activities', 
+      const response = await axios.post(`${API_URL}/api/activities`, 
         { description: "Live Session", duration_minutes: 60 },
         { headers: { Authorization: token } }
       );
@@ -35,7 +36,7 @@ const Dashboard = () => {
     if (!activityCode) return;
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:3001/api/activities/${activityCode}/stats`,
+      const response = await axios.get(`${API_URL}/api/activities/${activityCode}/stats`,
         { headers: { Authorization: token } }
       );
       setStats(response.data.stats);
